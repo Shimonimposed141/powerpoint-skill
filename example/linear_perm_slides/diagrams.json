@@ -1,0 +1,12 @@
+[
+  {
+    "id": "d01-degree-tradeoff",
+    "type": "graphviz",
+    "code": "digraph G {\n  rankdir=LR;\n  node [shape=box, style=\"filled,rounded\", fontname=\"Calibri\", fontsize=11, margin=\"0.15,0.08\"];\n  edge [arrowhead=vee, color=\"#4A4A5A\", penwidth=1.2];\n\n  naive [label=\"Naïve\\nn² size\", fillcolor=\"#F0F2F5\", color=\"#8C8C8C\"];\n  biperm [label=\"BiPerm\\ndeg 2, O(n)\", fillcolor=\"#0173B230\", color=\"#0173B2\", fontcolor=\"#0173B2\"];\n  mulperm [label=\"MulPerm\\ndeg ℓ, n·Õ(√log n)\", fillcolor=\"#029E7330\", color=\"#029E73\", fontcolor=\"#029E73\"];\n  hyperplonk [label=\"HyperPlonk\\ndeg μ, O(n·μ²)\", fillcolor=\"#DE8F0530\", color=\"#DE8F05\", fontcolor=\"#DE8F05\"];\n\n  naive -> biperm [label=\"split\\ninto 2\", fontsize=9, fontname=\"Calibri\"];\n  biperm -> mulperm [label=\"split\\ninto ℓ\", fontsize=9, fontname=\"Calibri\"];\n  mulperm -> hyperplonk [label=\"split\\ninto μ\", fontsize=9, fontname=\"Calibri\"];\n}"
+  },
+  {
+    "id": "d02-bucketing-cost",
+    "type": "graphviz",
+    "code": "digraph G {\n  rankdir=LR;\n  node [shape=box, style=\"filled,rounded\", fontname=\"Calibri\", fontsize=10, margin=\"0.12,0.06\"];\n  edge [color=\"#4A4A5A\", penwidth=1.2];\n\n  subgraph cluster_phase1 {\n    label=\"Bucketing (rounds 1..k')\";\n    labeljust=l; fontname=\"Calibri\"; fontsize=10; fontcolor=\"#0173B2\";\n    style=dashed; color=\"#0173B2\";\n    b1 [label=\"Round 1\\n4^(μ/ℓ) buckets\", fillcolor=\"#0173B220\", color=\"#0173B2\"];\n    bk [label=\"Round k'\\n4^(2^k'·μ/ℓ) buckets\", fillcolor=\"#0173B220\", color=\"#0173B2\"];\n    b1 -> bk [style=dashed, label=\"...\", fontsize=9];\n  }\n\n  subgraph cluster_phase2 {\n    label=\"Direct (rounds k'+1..μ)\";\n    labeljust=l; fontname=\"Calibri\"; fontsize=10; fontcolor=\"#DE8F05\";\n    style=dashed; color=\"#DE8F05\";\n    dk [label=\"Round k'+1\\ndirect eval\", fillcolor=\"#DE8F0520\", color=\"#DE8F05\"];\n    dm [label=\"Round μ\\nfinal\", fillcolor=\"#DE8F0520\", color=\"#DE8F05\"];\n    dk -> dm [style=dashed, label=\"...\", fontsize=9];\n  }\n\n  bk -> dk [label=\"switch at\\nk'=log√(log n)\", fontsize=9, fontname=\"Calibri\", color=\"#029E73\", fontcolor=\"#029E73\"];\n}"
+  }
+]

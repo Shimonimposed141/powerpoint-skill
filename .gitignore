@@ -1,0 +1,10 @@
+node_modules/
+package-lock.json
+.DS_Store
+__pycache__/
+*.pyc
+formulas/
+diagrams/*.svg
+diagrams/*.png
+diagrams/manifest.json
+/tmp/
