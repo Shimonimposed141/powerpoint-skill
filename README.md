@@ -203,6 +203,7 @@ powerpoint-skill/
 │       ├── render_latex.py          # Batch formula renderer (600 DPI + SVG)
 │       ├── render_diagrams.py       # Batch diagram renderer (Graphviz/Mermaid/TikZ)
 │       ├── inject_omml.py           # OMML post-processor (pandoc → OMML XML)
+│       ├── check_overlaps.py         # Card-aware overlap & boundary checker
 │       ├── soffice.py               # LibreOffice PPT→PDF wrapper
 │       └── thumbnail.py             # Slide thumbnail grid generator
 ├── example/
@@ -211,12 +212,17 @@ powerpoint-skill/
 │       ├── generate_slides.js       # Generated PptxGenJS script
 │       ├── formulas.json            # 23 formulas (15 OMML + 8 image)
 │       ├── diagrams.json            # 2 Graphviz diagrams
-│       ├── linear_perm_slides.pptx  # Output presentation (25 slides)
-│       └── linear_perm_slides.pdf   # PDF preview
+│       └── linear_perm_slides.pptx  # Output presentation (25 slides)
 ├── .gitignore
 ├── LICENSE
 └── README.md
 ```
+
+## Known Limitation: LibreOffice & OMML
+
+OMML (Office MathML) is PowerPoint's native math format. LibreOffice does not fully support OMML rendering — when converting `.pptx` to PDF via LibreOffice (`soffice`), OMML formulas may appear blank or distorted. This is a LibreOffice limitation, not a bug in the generated file. The formulas display correctly in Microsoft PowerPoint and WPS Office.
+
+The QA visual-check step uses LibreOffice for PDF conversion, so OMML formulas are expected to look wrong in the QA preview. Only image-rendered formulas (LaTeX → PNG) are checked for visual clarity during QA.
 
 ## Example
 

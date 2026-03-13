@@ -8,3 +8,6 @@ diagrams/*.svg
 diagrams/*.png
 diagrams/manifest.json
 /tmp/
+
+# Compiled PDFs (LibreOffice cannot render OMML correctly)
+example/**/*.pdf
