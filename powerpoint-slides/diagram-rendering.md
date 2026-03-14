@@ -129,9 +129,11 @@ Extract figures from research papers. **Dual-path pipeline**: MCP `pdf_extract_i
 
 **Primary path — MCP extraction:**
 1. Identify target page(s) via `pdf_get_toc` / `pdf_read_pages`
-2. Call `mcp__pdf-mcp__pdf_extract_images(path=PDF_PATH, pages=PAGE)`
-3. From returned images, pick the largest on the target page (by `width * height`)
-4. Decode base64 → save to `diagrams/<id>.png`
+2. Call `mcp__pdf-mcp__pdf_extract_images(path=PDF_PATH, pages=PAGE, output_dir="diagrams")`
+   - Uses `output_dir` to save images directly to disk (original resolution, zero token cost)
+   - Returns `{page, index, width, height, format, file_path}` metadata only
+3. From returned metadata, pick the largest on the target page (by `width * height`)
+4. Rename to match diagram ID if needed: `mv diagrams/page3_img0.png diagrams/<id>.png`
 
 **Fallback path — pdftoppm:**
 1. `pdftoppm -png -r 300 -f PAGE -l PAGE paper.pdf diagrams/fig`

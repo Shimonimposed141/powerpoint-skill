@@ -241,10 +241,11 @@ For isolated formulas (display/inline): use OMML (default `render:"auto"` handle
 4. **MCP pre-extraction** (for `type: "extract"` entries without `crop`):
    For each such entry, try MCP extraction before running the batch renderer:
    ```
-   mcp__pdf-mcp__pdf_extract_images(path=SOURCE_PDF, pages=PAGE)
+   mcp__pdf-mcp__pdf_extract_images(path=SOURCE_PDF, pages=PAGE, output_dir="diagrams")
    ```
-   - From returned images, pick the largest on the target page (max `width * height`).
-   - Decode base64 → save to `diagrams/<id>.png`.
+   - Images saved directly to `diagrams/` as PNG files (original resolution, zero token cost).
+   - From returned metadata, pick the largest on the target page (max `width * height`).
+   - Rename to match diagram ID: `mv diagrams/page3_img0.png diagrams/<id>.png`
    - If MCP returns no images or fails → leave for `render_diagrams.py` fallback.
    - Entries with `crop` always skip MCP (page-region extraction needs pdftoppm).
    - The batch renderer auto-skips IDs whose `.png` already exists on disk.
@@ -716,15 +717,12 @@ Extract figures from a paper PDF for use in slides. **MCP extraction first, pdft
 1. Identify target figures — use `pdf_get_toc` / `pdf_read_pages` to locate. If unsure, ask user.
 2. **Try MCP extraction** (primary path):
    ```
-   mcp__pdf-mcp__pdf_extract_images(path=PDF_PATH, pages=PAGES)
+   mcp__pdf-mcp__pdf_extract_images(path=PDF_PATH, pages=PAGES, output_dir="diagrams")
    ```
-   - Returns base64-encoded images with `{page, index, width, height, format, data}`.
+   - Saves images directly to `diagrams/` as PNG files (original resolution, zero token cost).
+   - Returns `{page, index, width, height, format, file_path}` — use `file_path` directly.
    - For each target page, pick the largest image (or let user choose if multiple).
-   - Decode base64 → save to `diagrams/<id>.png`:
-     ```bash
-     mkdir -p diagrams
-     echo "BASE64_DATA" | base64 -d > diagrams/<id>.png
-     ```
+   - Rename to descriptive name if needed: `mv diagrams/page3_img0.png diagrams/<id>.png`
 3. **Fallback to pdftoppm** — use when MCP returns no images, or when page-region cropping is needed:
    - Write `diagrams.json` with `type: "extract"` entries (include `crop` coordinates if needed).
    - Run renderer:
