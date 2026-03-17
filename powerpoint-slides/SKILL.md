@@ -74,6 +74,9 @@ Parse `$ARGUMENTS` to determine which action to run. If no action specified, ask
 29. **Visual-first planning** — audiences grasp structure through visual anchors, not bullet lists. During Phase 2, ask for each slide: "Can the audience understand this in 10 seconds from text alone?" If not, the slide needs a visual element (diagram, table, chart, or figure). Common signals: multi-step processes, component relationships, data comparisons, hierarchies, numerical trends — these almost always need visuals rather than prose. Phase 2 self-check: every section has ≥1 non-formula visual element; slides with zero visuals (no diagram, table, chart, or figure) must stay ≤30% of the deck.
 30. **Table cell formulas** — math notation inside table cells (`O(n)`, `ε`, `∑_{i}`, etc.) must use OMML placeholders (`{{MATH:id}}`), never Unicode approximations or plain text. Add each cell formula to `formulas.json` with `"render": "omml"`. OMML inherits the cell's font size (`F.tblCell.size` = 12pt) automatically. For complex constructs (fractions, large operators, stacked expressions) that would overflow cell height, use image rendering (`"render": "image"`) with `targetH` ≤ `rowH - 0.08`. Pass cell objects to `addTable` for OMML cells: `{text: "{{MATH:f42}}", options: {}}`.
 31. **Long table pagination** — tables exceeding the per-slide row limit (8-10 data rows) must be split across slides. Each continuation slide repeats the header row and appends " (cont'd)" to the slide title via `addTableCont()`. Split at logical row group boundaries (e.g., between algorithm families, metric categories, dataset groups) — never mid-group. The last page should have ≥3 data rows; if fewer, merge with the previous page. Each page gets its own caption/takeaway if the subset tells a different story.
+32. **Figure aspect-ratio-aware layout** — when embedding extracted paper figures, choose layout based on the figure's width/height ratio (from manifest metadata or measured dimensions): ratio > 1.6 (wide) → full-width centered via `addFigure()`. Ratio ≤ 1.6 (normal/tall) → figure-left + text-right via `addFigureWithText()`. Never stretch or crop figures to fit — always preserve original aspect ratio. Compute `figRatio` from manifest: `width_px / height_px` (PNG) or `width_pt / height_pt` (SVG). Cap figure width at 60% of CW in side-by-side layout to leave room for explanation bullets.
+33. **Alignment consistency** — elements of the same type on the same slide (e.g., multiple cards, multiple bullets, multiple formulas) should share identical x-coordinates and consistent widths. Tolerance: ≤0.05" deviation. The `check_overlaps.py` alignment check (run in Phase 5) flags misalignment. Common violations: card columns with slightly different x-offsets, formula images that aren't centered on the same axis, bullet lists at inconsistent left margins. When using `cols2()` or manual column positioning, always derive x from the same constant — never approximate.
+34. **Speaker notes (optional)** — if the user requests speaker notes or the presentation is for a talk where notes would help (e.g., journal club, defense), generate notes per slide via `addNotes(slide, text)`. Notes should be telegraphic talking points (3-5 per slide), not full scripts. Include: key message, transition to next slide, potential audience questions. Notes are embedded in the .pptx Notes pane — visible in Presenter View. This is opt-in: only generate when user explicitly requests or when asked during Phase 1.
 
 ---
 
@@ -109,6 +112,7 @@ Key points (always in context):
 | `text-left-diagram-right` | Text + diagram side-by-side (55/45 split) |
 | `full-diagram` | Full-width diagram |
 | `chart-centered` | Chart + caption |
+| `figure-with-text` | Extracted figure + explanation bullets (aspect-ratio-aware) |
 | `full-image` | Full-bleed image + overlay |
 | `references` | Bibliography |
 | `thank-you` | Closing slide |
@@ -150,6 +154,7 @@ Conduct a content-driven interview via AskUserQuestion. Questions are informed b
    - C) Ocean — blue tones, professional academic
    - D) Forest — green natural tones
    - E) Sandwich — dark title/conclusion + light content
+7. **Speaker notes** (optional) — Would you like speaker notes in the Presenter View pane? Useful for journal clubs, defenses, or rehearsing. If yes, notes will be generated as telegraphic talking points per slide.
 
 **Slide count heuristic** (~1 slide per 1.5-2 minutes):
 

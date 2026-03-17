@@ -310,6 +310,45 @@ def check_slide(elements: list[BBox], slide_num: int,
                 }
             ))
 
+    # 4. Alignment consistency check — find sibling elements (same size/type at same y-band)
+    #    that should share x-coordinates but don't (tolerance: 0.05")
+    ALIGN_TOL = 0.05
+    # Group containers (cards) by approximate y-position (within 0.1")
+    containers = [e for e in check_elems if e.has_fill and not e.has_text and e.area > 0.5]
+    if len(containers) >= 2:
+        # Find rows of containers at similar y
+        y_groups: dict[float, list[BBox]] = {}
+        for c in containers:
+            matched = False
+            for yk in y_groups:
+                if abs(c.y - yk) < 0.1:
+                    y_groups[yk].append(c)
+                    matched = True
+                    break
+            if not matched:
+                y_groups[c.y] = [c]
+        for yk, group in y_groups.items():
+            if len(group) < 2:
+                continue
+            # Check: do all cards in this row share the same y?
+            ys = [e.y for e in group]
+            if max(ys) - min(ys) > ALIGN_TOL:
+                issues.append(Issue(
+                    slide=slide_num, severity="WARNING", kind="alignment",
+                    message=(f"Card row y-misalignment: {len(group)} cards near y={yk:.2f}\", "
+                             f"y range={min(ys):.3f}\"–{max(ys):.3f}\" (>{ALIGN_TOL}\")"),
+                    details={"y_values": [round(y, 3) for y in ys]}
+                ))
+            # Check: do all cards in this row share the same height?
+            hs = [e.h for e in group]
+            if max(hs) - min(hs) > ALIGN_TOL:
+                issues.append(Issue(
+                    slide=slide_num, severity="WARNING", kind="alignment",
+                    message=(f"Card row height mismatch: {len(group)} cards near y={yk:.2f}\", "
+                             f"h range={min(hs):.3f}\"–{max(hs):.3f}\""),
+                    details={"h_values": [round(h, 3) for h in hs]}
+                ))
+
     return issues
 
 

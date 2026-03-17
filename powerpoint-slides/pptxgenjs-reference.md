@@ -568,6 +568,20 @@ sl.addText("Surpassing the previous SOTA by 3.9 percentage points\nwith 40% fewe
   color: T.tx.sec, align: "center", margin: 0 });
 ```
 
+### Figure with Text (Pattern 13)
+
+```javascript
+// Aspect-ratio-aware: figure on left, bullets on right
+// Best for extracted paper figures (ratio ≤ 1.6) that need explanation
+const sl = pres.addSlide({ masterName: "CONTENT_SLIDE" });
+sTitle(sl, "Key Construction");
+addFigureWithText(sl, "fig-construction", CY, CH,
+  1.33,  // figRatio: original width / height from manifest
+  ["Step 1: Commit phase", "Step 2: Evaluation", "Step 3: Verification"],
+  "Source: Author et al., 2025"
+);
+```
+
 ### Text-Left Diagram-Right
 
 ```javascript

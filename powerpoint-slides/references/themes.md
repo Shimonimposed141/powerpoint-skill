@@ -262,6 +262,8 @@ function addDiagramAt(slide, id, x, y, maxW, targetH) {
 }
 
 // Extracted figure with caption (source attribution)
+// Aspect-ratio-aware: wide images (ratio>1.6) use full-width centered,
+// normal/tall images (ratio≤1.6) use left-figure + right-text layout via addFigureWithText.
 function addFigure(slide, id, y, targetH, caption) {
   addDiagram(slide, id, y, targetH - 0.3);
   if (caption) {
@@ -271,6 +273,42 @@ function addFigure(slide, id, y, targetH, caption) {
       color: T.tx.mut, align: "center", italic: true, margin: 0
     });
   }
+}
+
+// Figure + text side-by-side layout (aspect-ratio-aware)
+// For images with ratio ≤ 1.6: figure on left, bullets/text on right
+// figRatio = original image width / height (read from manifest or measured)
+// textItems: array of strings for right-side bullets
+function addFigureWithText(slide, id, y, targetH, figRatio, textItems, caption) {
+  const d = dManifest[id];
+  if (!d || d.error) return;
+  const gap = 0.3;
+  // Compute figure width from height and ratio, cap at 60% of CW
+  let figH = targetH - (caption ? 0.3 : 0);
+  let figW = figH * figRatio;
+  const maxFigW = CW * 0.6;
+  if (figW > maxFigW) { const s = maxFigW / figW; figW = maxFigW; figH *= s; }
+  const textX = M + figW + gap;
+  const textW = CW - figW - gap;
+  // Image (left)
+  addDiagramAt(slide, id, M, y, figW, figH);
+  // Bullets (right)
+  if (textItems && textItems.length > 0) {
+    addBullets(slide, textItems, textX, y, textW, figH);
+  }
+  // Caption (below figure)
+  if (caption) {
+    slide.addText(caption, {
+      x: M, y: y + targetH - 0.25, w: figW, h: 0.25,
+      fontFace: F.caption.face, fontSize: F.caption.size,
+      color: T.tx.mut, align: "center", italic: true, margin: 0
+    });
+  }
+}
+
+// Speaker notes (optional — add after all slide content)
+function addNotes(slide, text) {
+  slide.addNotes(text);
 }
 
 // Themed chart (auto-applies theme colors and clean styling)
